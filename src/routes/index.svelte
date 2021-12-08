@@ -21,7 +21,7 @@
                 position
                 bg_class
                 bg_image
-                widgets {
+                widgets(order_by: { id: asc }) {
                   id
                   kind
                   settings

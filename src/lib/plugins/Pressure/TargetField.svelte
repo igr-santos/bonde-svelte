@@ -75,6 +75,7 @@
   .targets {
     display: flex;
     flex-direction: row;
+    margin: 8px 0px;
   }
   .target {
     background-color: #fff;

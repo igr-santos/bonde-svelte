@@ -1,5 +1,6 @@
 <script>
-  import Form from '$lib/plugins/Form.svelte';
+  import Donation from '$lib/plugins/Donation/index.svelte';
+  import Form from '$lib/plugins/Form/index.svelte';
   import Pressure from '$lib/plugins/Pressure/index.svelte';
 
   export let widget;
@@ -10,8 +11,10 @@
     <Form widget={widget} />
   {:else if widget.kind === 'pressure'}
     <Pressure widget={widget} />
+  {:else if widget.kind === 'donation'}
+    <Donation widget={widget} />
   {:else}
-    <p>{widget.kind}</p>
+    <div>&nbsp;</div>
   {/if}
 </div>
 

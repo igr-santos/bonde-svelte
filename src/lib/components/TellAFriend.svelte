@@ -2,7 +2,7 @@
 <div class="tell-a-friend">
   <h3>Formulário salvo!</h3>
   
-  <img src="/static/check-mark-image.png" alt="Formulário salvo" />
+  <img src="/check-mark-image.png" alt="Formulário salvo" />
   
   <p>Compartilhe a campanha com mais pessoas para aumentar o impacto.</p>
   
