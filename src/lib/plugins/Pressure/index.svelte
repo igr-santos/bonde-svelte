@@ -1,25 +1,39 @@
 <script>
+  import { createForm } from 'svelte-forms-lib';
   import LGPD from '$lib/components/LGPD.svelte';
   import TellAFriend from '$lib/components/TellAFriend.svelte';
   import Field from './Field.svelte';
   import Targets from './TargetField.svelte';
 
+  let success;
   export let widget = {};
+
+  const { form, errors, handleChange, handleSubmit } = createForm({
+    initialValues: {
+      targets: '',
+      email: '',
+      first_name: '',
+      last_name: '',
+      state: '',
+      city: '',
+      subject: widget?.settings?.pressure_subject,
+      body: widget?.settings?.pressure_body
+    },
+    validate: (values) => {
+      let errs = {};
+      if (!values.email) errs.email = 'Preenchimento obrigatório';
+      if (!values.targets) errs.targets = 'Preenchimento obrigatório';
+      if (!values.first_name) errs.first_name = 'Preenchimento obrigatório';
+      return errs;
+    },
+    onSubmit: (values) => {
+      console.log('submit', values);
+      success = true;
+    }
+  })
 
   let optimization_enabled = widget?.settings?.optimization_enabled || true;
   let disabled_subject_and_body = widget?.settings?.disable_edit_field || optimization_enabled;
-
-  // Form controllers
-  let success;
-  let formValues = {
-    subject: widget?.settings?.pressure_subject,
-    body: widget?.settings?.pressure_body
-  };
-
-  function handleSubmit() {
-    console.log("submit", { formValues });
-    success = true;
-  }
 </script>
 
 {#if success}
@@ -31,14 +45,40 @@
   <form
     on:submit|preventDefault={handleSubmit}
   >
-    <Targets bind:value={formValues.targets} name="targets" widget={widget} />
+    <Targets bind:value={$form.targets} name="targets" widget={widget} />
 
-    <Field name='email' bind:value={formValues.email} label='E-mail' placeholder='Insira seu e-mail' />
-    <Field name='first_name' bind:value={formValues.first_name} label='Nome' placeholder='Insira seu nome' />
-    <Field name='last_name' bind:value={formValues.last_name} label='Sobrenome' placeholder='Insira seu sobrenome' />
+    <Field
+      bind:value={$form.email}
+      bind:error={$errors.email}
+      change={handleChange}
+      label='E-mail'
+      name='email'
+      placeholder='Insira seu e-mail' />
+    
+    <Field
+      bind:value={$form.first_name}
+      bind:error={$errors.first_name}
+      change={handleChange}
+      label='Nome'
+      name='first_name'
+      placeholder='Insira seu nome' />
+
+    <Field
+      bind:value={$form.last_name}
+      change={handleChange}
+      label='Sobrenome'
+      name='last_name'
+      placeholder='Insira seu sobrenome' />
 
     {#if widget.settings?.show_state === 's'}
-      <Field name='state' bind:value={formValues.state} label='Estado' placeholder='Selecione seu estado' type="select">
+      <Field
+        bind:value={$form.state}
+        change={handleChange}
+        label='Estado'
+        name='state'
+        placeholder='Selecione seu estado'
+        type="select"
+      >
         <option value="AC">Acre</option>
         <option value="AL">Alagoas</option>
         <option value="AP">Amapá</option>
@@ -71,16 +111,23 @@
     {/if}
 
     {#if widget.settings?.show_city === 'city-true'}
-      <Field name='city' bind:value={formValues.city} label='Cidade' placeholder='Insira sua cidade' />
+      <Field
+        bind:value={$form.city}
+        change={handleChange}
+        label='Cidade'
+        name='city'
+        placeholder='Insira sua cidade' />
     {/if}
 
     <Field
-      bind:value={formValues.subject}
+      bind:value={$form.subject}
+      change={handleChange}
       name="subject"
       label="Assunto"
       disabled={disabled_subject_and_body} />
     <Field
-      bind:value={formValues.body}
+      bind:value={$form.body}
+      change={handleChange} 
       type="textarea"
       name="body"
       label="Corpo do e-mail"

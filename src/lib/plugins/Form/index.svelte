@@ -1,16 +1,31 @@
 <script>
+  import { createForm } from 'svelte-forms-lib';
   import LGPD from '$lib/components/LGPD.svelte';
   import TellAFriend from '$lib/components/TellAFriend.svelte';
 
   export let widget;
-  
-  let success;
-  let formValues = {};
+  let success = false;
 
-  function handleSubmit() {
-    console.log("submit", { formValues });
-    success = true;
+  const createValidationSchema = (values) => {
+    let validationSchema = {};
+    JSON.parse(widget.settings.fields).forEach((field) => {
+      if (field.required !== 'false' && !values[field.uid]) {
+        validationSchema[field.uid] = `${field.label} deve ser preenchido`
+      }
+    })
+    return validationSchema
   }
+
+  const { form, errors, handleChange, handleSubmit } = createForm({
+    initialValues: {},
+    validate: createValidationSchema,
+    onSubmit: (values) => {
+      console.log("submit", { values });
+      success = true;
+    }
+  });
+
+  console.log("widget", { widget, errors });
 </script>
 
 {#if success}
@@ -23,22 +38,24 @@
     <h2>{widget.settings?.call_to_action || "Clique para editar"}</h2>
     {#each JSON.parse(widget.settings.fields) as field}
       <div class="form-control">
+        <label for={field.uid}>{field.label}{field.required !== 'false' && '*'}</label>
         {#if field.kind === 'dropdown'}
-          <label for={field.uid}>{field.label}{field.required !== "false" ? '*' : ''}</label>
-          <select name={field.uid} bind:value={formValues[field.uid]}>
+          <select bind:value={$form[field.uid]} name={field.uid} disabled={field.disabled} on:change={handleChange}>
             {#each field.placeholder.split(';') as value}
               <option value={value.trim()}>{value.trim()}</option>
             {/each}
+            <slot />
           </select>
         {:else}
-          <label for={field.uid}>{field.label}{field.required !== "false" ? '*' : ''}</label>
-          <input name={field.uid} bind:value={formValues[field.uid]} />
+          <input bind:value={$form[field.uid]} name={field.uid} disabled={field.disabled} on:change={handleChange}/>
+        {/if}
+        {#if $errors[field.uid]}
+          <p class="error">{$errors[field.uid]}</p>
         {/if}
       </div>
     {/each}
     
     <button type="submit">{widget.settings?.button_text || 'Enviar'}</button>
-    
     <LGPD />
   </form>
 {/if}
@@ -54,8 +71,17 @@
     padding: 2rem;
     border-radius: 3px;
   }
-  .form-control {
+  div.form-control {
     margin-bottom: 1rem;
+  }
+  p.error {
+    background-color: rgb(249, 202, 206);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0px 3px 3px 0px;
+    border-color: rgb(255, 65, 54);
+    border-width: 8px;
+    border-left-style: solid;
   }
   label {
     cursor: pointer;

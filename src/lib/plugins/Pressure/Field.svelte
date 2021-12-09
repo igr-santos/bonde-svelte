@@ -1,6 +1,8 @@
 <script>
   export let type = 'text';
   export let name;
+  export let change;
+  export let error = undefined;
   export let label;
   export let value;
   export let placeholder = undefined;
@@ -8,25 +10,44 @@
 </script>
 
 <div class="form-control">
-  <label for={name}>{label}</label>
+  <div class="inline-flex">
+    <label for={name}>{label}</label>
+    {#if error}
+      <span class="error">{error}</span>
+    {/if}
+  </div>
   {#if type === 'select'}
-    <select bind:value={value} {name} {disabled}>
+    <select bind:value={value} on:change={change} {name} {disabled}>
       {#if placeholder}
         <option>{placeholder}</option>
       {/if}
       <slot />
     </select>
   {:else if type === 'textarea'}
-    <textarea bind:value={value} {name} {placeholder} {disabled} />
+    <textarea bind:value={value} on:change={change} {name} {placeholder} {disabled} />
   {:else}
-    <input bind:value={value} {name} {placeholder} {disabled} />
+    <input bind:value={value} on:change={change} {name} {placeholder} {disabled} />
   {/if}
 </div>
 
 <style>
-  .form-control {
+  div.form-control {
     padding: 1rem 2rem 0.5rem;
     border-bottom: 1px solid rgb(238, 238, 238);
+  }
+  div.inline-flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  span.error {
+    font-family: "Nunito Sans", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.36;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: rgb(255, 9, 49);
   }
   label {
     line-height: 1.5;
